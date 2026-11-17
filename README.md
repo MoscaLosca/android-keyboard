@@ -1,3 +1,29 @@
+# FUTO Keyboard - Custom Fork
+
+This is a custom fork of [FUTO Keyboard](https://github.com/futo-org/android-keyboard) (mirror of `gitlab.futo.org/keyboard/latinime`) focused on practical UI/UX enhancements.
+
+## Custom Features
+
+### GBoard-Style Recent Emoji Bar
+- **Dedicated Quick-Access Row:** Adds a 36 dp horizontally scrollable bar of recently used emojis directly above the suggestion/action bar.
+- **Frozen Order While Typing:** Tapping an emoji on the bar inserts it without shifting positions under your finger; the order refreshes when reopening the keyboard or returning from the full emoji picker.
+- **Quick Picker Button:** Includes a fixed trailing button on the right to open the full emoji panel at any time (also displayed when history is empty or the device is locked).
+- **Context-Aware Visibility:** Automatically hides on sensitive or numeric input fields (passwords, PINs, phone numbers, dates/times) and when an action window is open.
+- **Configurable:** Can be toggled on or off under **Settings -> Typing** (enabled by default).
+
+## Building from Source
+
+1. Create a `local.properties` file in the repository root pointing to your Android SDK:
+   ```properties
+   sdk.dir=/path/to/android-sdk
+   ```
+2. Build the debug APK:
+   ```bash
+   ./gradlew assembleUnstableDebug
+   ```
+
+---
+
 # FUTO Keyboard
 
 The goal is to make a good modern keyboard that stays offline and doesn't spy on you. This keyboard is a fork of [LatinIME, The Android Open-Source Keyboard](https://android.googlesource.com/platform/packages/inputmethods/LatinIME), with significant changes made to it.
