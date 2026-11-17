@@ -77,10 +77,8 @@ private fun Context.isDefaultIMECurrent(): Boolean {
 
 private fun Context.isDoublePackage(): Boolean {
     val value = Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
-    val standalonePackage = "org.futo.inputmethod.latin"
-    val playstorePackage = "org.futo.inputmethod.latin.playstore"
 
-    return (value.startsWith("$standalonePackage/") && packageName == playstorePackage) || (value.startsWith("$playstorePackage/") && packageName == standalonePackage)
+    return OFFICIAL_FUTO_PACKAGES.any { value.startsWith("$it/") }
 }
 
 public const val IMPORT_RESOURCE_FILE_REQUEST = 71067309
