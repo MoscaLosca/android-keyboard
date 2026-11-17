@@ -375,6 +375,11 @@
     <string name="settings_export_configuration_exporting_text">Please do not close this menu until the process is completed (5 to 10 seconds)</string>
     <string name="settings_import_configuration">Import configuration</string>
     <string name="settings_import_configuration_subtitle">If you previously exported your config, you can re-import it here.</string>
+    <string name="setup_migration_title">Import from FUTO Keyboard</string>
+    <string name="setup_migration_text">Your settings, theme, personal dictionary, learned words and recent emojis can be imported from the official FUTO Keyboard. The official app and its data stay untouched.</string>
+    <string name="setup_migration_howto">In the official FUTO Keyboard, open Settings, go to Miscellaneous and tap "Export configuration", then save the .backup file.</string>
+    <string name="setup_migration_import_button">Import .backup file</string>
+    <string name="setup_migration_skip_button">Not now</string>
     <string name="settings_import_export_tags">backup, restore, save, load, export, import, transfer device</string>
 
     <!-- Keyboard actions -->

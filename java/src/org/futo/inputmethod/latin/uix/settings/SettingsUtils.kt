@@ -35,6 +35,8 @@ fun SetupOrMain(inputMethodEnabled: Boolean, inputMethodSelected: Boolean, doubl
         SetupDirectBootWarning()
     } else if (!inputMethodSelected) {
         SetupChangeDefaultIME(doublePackage)
+    } else if (needsToShowMigrationPrompt()) {
+        SetupImportMigration()
     } else {
         main()
     }

@@ -232,3 +232,46 @@ fun SetupDirectBootWarning() {
         }
     }
 }
+
+@Composable
+fun SetupImportMigration() {
+    val context = LocalContext.current
+
+    SetupContainer {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Step(fraction = 1.0f, text = stringResource(R.string.setup_migration_title))
+
+            Text(
+                stringResource(R.string.setup_migration_text),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                stringResource(R.string.setup_migration_howto),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = {
+                    triggerImportSettingsMerge(context)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.setup_migration_import_button))
+            }
+
+            Button(
+                onClick = {
+                    runBlocking { context.setSetting(MigrationPromptDismissed, true) }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.setup_migration_skip_button))
+            }
+        }
+    }
+}
