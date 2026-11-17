@@ -22,6 +22,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SettingsKey
 import org.futo.inputmethod.latin.uix.findActivity
+import org.futo.inputmethod.latin.uix.theme.Typography
 
 /** Package names of the official FUTO Keyboard releases (standalone, nightly, Play Store). */
 val OFFICIAL_FUTO_PACKAGES = listOf(
@@ -129,10 +130,19 @@ fun SetupImportError(message: String?, onContinue: () -> Unit) {
             )
 
             Text(
-                message ?: stringResource(R.string.setup_migration_error_body),
+                stringResource(R.string.setup_migration_error_body),
                 textAlign = TextAlign.Left,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            if(message != null) {
+                Text(
+                    message,
+                    style = Typography.SmallMl,
+                    textAlign = TextAlign.Left,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Button(
                 onClick = onContinue,

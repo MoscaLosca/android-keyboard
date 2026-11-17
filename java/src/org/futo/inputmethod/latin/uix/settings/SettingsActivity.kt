@@ -332,18 +332,26 @@ class SettingsActivity : ComponentActivity(), DynamicThemeProviderOwner {
                     return@launch
                 }
 
+                var imported = false
                 var errorMessage: String? = null
                 withContext(Dispatchers.IO) {
-                    contentResolver.openInputStream(uri)!!.use {
-                        try {
-                            SettingsExporter.loadSettings(this@SettingsActivity, it, false)
-                        } catch (e: Exception) {
-                            errorMessage = e.message ?: e.toString()
+                    try {
+                        val isBackup = contentResolver.openInputStream(uri)?.use {
+                            SettingsExporter.getCfgFileMetadata(it) != null
+                        } ?: false
+
+                        if(isBackup) {
+                            contentResolver.openInputStream(uri)!!.use {
+                                SettingsExporter.loadSettings(this@SettingsActivity, it, false)
+                            }
+                            imported = true
                         }
+                    } catch (e: Exception) {
+                        errorMessage = e.message ?: e.toString()
                     }
                 }
 
-                if(errorMessage == null) {
+                if(imported) {
                     setSetting(MigrationCompleted, true)
                     migrationState.value = 2
                 } else {

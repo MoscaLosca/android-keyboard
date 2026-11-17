@@ -220,10 +220,14 @@
             android:grantUriPermissions="true" />
     </application>
 
-    <!-- To query enabled input methods for voice IME detection -->
+    <!-- To query enabled input methods for voice IME detection, and to detect the official
+         FUTO Keyboard apps for the settings migration flow (package visibility on API 30+) -->
     <queries>
         <intent>
             <action android:name="android.view.InputMethod" />
         </intent>
+        <package android:name="org.futo.inputmethod.latin" />
+        <package android:name="org.futo.inputmethod.latin.unstable" />
+        <package android:name="org.futo.inputmethod.latin.playstore" />
     </queries>
 </manifest>
