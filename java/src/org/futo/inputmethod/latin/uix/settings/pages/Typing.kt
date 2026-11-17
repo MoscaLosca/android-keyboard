@@ -155,6 +155,11 @@ val InlineAutofillSetting = SettingsKey(
     true
 )
 
+val EmojiBarDisplayedSetting = SettingsKey(
+    booleanPreferencesKey("enable_emoji_bar"),
+    true
+)
+
 val ResizeMenuLite = UserSettingsMenu(
     title = R.string.size_settings_title,
     navPath = "resize", registerNavPath = false,
@@ -866,6 +871,15 @@ val TypingSettingsMenu = UserSettingsMenu(
             title = R.string.typing_settings_suggest_emojis,
             subtitle = R.string.typing_settings_suggest_emojis_subtitle,
             setting = SHOW_EMOJI_SUGGESTIONS,
+            icon = {
+                Icon(painterResource(id = R.drawable.smile), contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f))
+            }
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_show_emoji_bar,
+            subtitle = R.string.keyboard_settings_show_emoji_bar_subtitle,
+            setting = EmojiBarDisplayedSetting,
             icon = {
                 Icon(painterResource(id = R.drawable.smile), contentDescription = null,
                     tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f))
