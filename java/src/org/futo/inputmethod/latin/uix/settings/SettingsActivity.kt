@@ -45,6 +45,7 @@ import org.futo.inputmethod.latin.uix.SettingsExporter
 import org.futo.inputmethod.latin.uix.THEME_KEY
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
+import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.theme.ThemeOption
 import org.futo.inputmethod.latin.uix.theme.UixThemeAuto
 import org.futo.inputmethod.latin.uix.theme.getThemeOption
@@ -179,12 +180,17 @@ class SettingsActivity : ComponentActivity(), DynamicThemeProviderOwner {
                             color = MaterialTheme.colorScheme.background
                         ) {
                             Box(Modifier.safeDrawingPadding()) {
-                                SetupOrMain(
-                                    inputMethodEnabled.value,
-                                    inputMethodSelected.value,
-                                    doublePackage.value
-                                ) {
-                                    SettingsNavigator(navController = navController)
+                                when (migrationState.value) {
+                                    1 -> SetupImporting()
+                                    2 -> SetupImportSuccess { migrationState.value = 0 }
+                                    3 -> SetupImportError(migrationErrorMessage) { migrationState.value = 0 }
+                                    else -> SetupOrMain(
+                                        inputMethodEnabled.value,
+                                        inputMethodSelected.value,
+                                        doublePackage.value
+                                    ) {
+                                        SettingsNavigator(navController = navController)
+                                    }
                                 }
                             }
                         }
@@ -283,6 +289,11 @@ class SettingsActivity : ComponentActivity(), DynamicThemeProviderOwner {
     }
 
     val exportInProgress = mutableStateOf(0)
+
+    // 0 = idle, 1 = importing, 2 = success, 3 = error
+    val migrationState = mutableStateOf(0)
+    var migrationErrorMessage: String? = null
+
     @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -311,6 +322,34 @@ class SettingsActivity : ComponentActivity(), DynamicThemeProviderOwner {
                     "Model Exported",
                     "Model saved to file"
                 )
+            }
+        } else if(requestCode == IMPORT_SETTINGS_MERGE_REQUEST) {
+            migrationState.value = 1
+            lifecycleScope.launch {
+                val uri = data?.data
+                if(uri == null) {
+                    migrationState.value = 0
+                    return@launch
+                }
+
+                var errorMessage: String? = null
+                withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(uri)!!.use {
+                        try {
+                            SettingsExporter.loadSettings(this@SettingsActivity, it, false)
+                        } catch (e: Exception) {
+                            errorMessage = e.message ?: e.toString()
+                        }
+                    }
+                }
+
+                if(errorMessage == null) {
+                    setSetting(MigrationCompleted, true)
+                    migrationState.value = 2
+                } else {
+                    migrationErrorMessage = errorMessage
+                    migrationState.value = 3
+                }
             }
         } else if(requestCode == EXPORT_SETTINGS_REQUEST) {
             lifecycleScope.launch {

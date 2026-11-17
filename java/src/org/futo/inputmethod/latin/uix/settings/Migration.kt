@@ -5,10 +5,20 @@ package org.futo.inputmethod.latin.uix.settings
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SettingsKey
 import org.futo.inputmethod.latin.uix.findActivity
 
@@ -66,4 +76,69 @@ fun needsToShowMigrationPrompt(): Boolean {
     if(!officialInstalled) return false
 
     return !useDataStoreValue(MigrationPromptDismissed) && !useDataStoreValue(MigrationCompleted)
+}
+
+@Composable
+fun SetupImporting() {
+    SetupContainer {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.setup_migration_importing),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun SetupImportSuccess(onContinue: () -> Unit) {
+    SetupContainer {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.setup_migration_success_title),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                stringResource(R.string.setup_migration_success_body),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.setup_migration_continue))
+            }
+        }
+    }
+}
+
+@Composable
+fun SetupImportError(message: String?, onContinue: () -> Unit) {
+    SetupContainer {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.setup_migration_error_title),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Text(
+                message ?: stringResource(R.string.setup_migration_error_body),
+                textAlign = TextAlign.Left,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.setup_migration_continue))
+            }
+        }
+    }
 }
