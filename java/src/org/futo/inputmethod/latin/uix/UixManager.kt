@@ -1330,6 +1330,7 @@ class UixManager(private val latinIME: LatinIME) {
 
     @Composable
     fun Content() {
+        val view = LocalView.current
         ProvidersAndWrapper {
             InputDarkener(isInputOverridden.value || isShowingActionEditor.value) {
                 closeActionWindow()
@@ -1371,6 +1372,7 @@ class UixManager(private val latinIME: LatinIME) {
                                 with(LocalDensity.current) { kbHeight.intValue.toDp() }
                                         + latinIME.sizingCalculator.calculateSuggestionBarHeightDp().dp
                                         + gap
+                                        + (if (isEmojiBarShown) EmojiBarHeight else 0.dp)
                             )
                         } else {
                             it
@@ -1385,7 +1387,18 @@ class UixManager(private val latinIME: LatinIME) {
                                 closeActionWindow = currWindowActionWindow.value?.let {{ closeActionWindow() }},
                                 keyboardOffset = keyboardViewOffset,
                                 keyboardHeight = (latinIME.size.value?.height ?: kbHeight.intValue) + with(LocalDensity.current) { navBarHeight().toPx().toInt() },
-                                expandableSuggestionCfg = expandableSuggestionCfg.value
+                                expandableSuggestionCfg = expandableSuggestionCfg.value,
+                                emojiBar = {
+                                    if (isEmojiBarShown) {
+                                        EmojiBar(
+                                            emojis = recentEmojis.value,
+                                            onEmojiSelected = { selectEmoji(it, view) },
+                                            onOpenEmojiPanel = { onActionActivated(EmojiAction) },
+                                            drawBottomSeparator = false
+                                        )
+                                    }
+                                },
+                                emojiBarHeight = if (isEmojiBarShown) EmojiBarHeight else 0.dp
                             )
                         }
                         latinIME.LegacyKeyboardView(modifier = Modifier

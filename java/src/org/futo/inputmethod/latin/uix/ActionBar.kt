@@ -1323,6 +1323,8 @@ fun BoxScope.ActionBarWithExpandableCandidates(
     keyboardOffset: MutableIntState? = null,
     keyboardHeight: Int = 1000,
     expandableSuggestionCfg: ExpandableSuggestionBarConfiguration,
+    emojiBar: (@Composable () -> Unit)? = null,
+    emojiBarHeight: Dp = 0.dp,
 ) {
     val wordList = remember(words) {
         words?.mSuggestedWordInfoList?.toList()?.filter {
@@ -1386,7 +1388,7 @@ fun BoxScope.ActionBarWithExpandableCandidates(
 
     if(canShowSuggest) {
         Surface(
-            Modifier.fillMaxWidth().padding(0.dp, ActionBarHeight, 0.dp, 0.dp)
+            Modifier.fillMaxWidth().padding(0.dp, emojiBarHeight + ActionBarHeight, 0.dp, 0.dp)
                 .heightIn(max = with(density) { keyboardOffset?.intValue?.toDp() ?: 0.dp })
                 .safeKeyboardPadding()
         ) {
@@ -1404,9 +1406,10 @@ fun BoxScope.ActionBarWithExpandableCandidates(
                 testTag = "ActionBar"
                 testTagsAsResourceId = true
             }
-            .height(ActionBarHeight)
+            .height(emojiBarHeight + ActionBarHeight)
             .align(Alignment.TopCenter)
     ) {
+        emojiBar?.invoke()
         ActionSep()
         Surface(
             modifier = Modifier
