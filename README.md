@@ -11,6 +11,11 @@ This is a custom fork of [FUTO Keyboard](https://github.com/futo-org/android-key
 - **Context-Aware Visibility:** Automatically hides on sensitive or numeric input fields (passwords, PINs, phone numbers, dates/times) and when an action window is open.
 - **Configurable:** Can be toggled on or off under **Settings -> Typing** (enabled by default).
 
+### Guided Migration from Official FUTO Keyboard
+- **Side-by-Side Package ID:** Uses `org.futo.inputmethod.latin.fork` so it installs alongside the official app without overwriting existing data.
+- **Setup Wizard Detection:** Automatically detects an installed official FUTO Keyboard during initial setup and guides you through exporting and importing your configuration.
+- **Full Non-Destructive Import:** Restores settings, custom themes, personal dictionary, learned word history, and recent emojis from a standard `.backup` archive (also accessible anytime under **Settings -> Misc -> Import from FUTO Keyboard**).
+
 ## Building from Source
 
 1. Create a `local.properties` file in the repository root pointing to your Android SDK:
