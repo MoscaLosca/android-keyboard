@@ -214,6 +214,7 @@ fun BoxScope.KeyboardBackground(
     colorScheme: KeyboardColorScheme,
     computedSize: ComputedKeyboardSize? = null,
     useThumbnail: Boolean = false,
+    extraTopBarHeight: Dp = 0.dp,
 ) {
     val backgroundBrush = colorScheme.keyboardBackgroundGradient ?: SolidColor(colorScheme.keyboardSurface)
     val advanced = colorScheme.extended.advancedThemeOptions
@@ -240,7 +241,7 @@ fun BoxScope.KeyboardBackground(
 
                 val fixedWidth = computedSize?.width?.toFloat() ?: size.width
                 val fixedHeight = when {
-                    (computedSize != null) -> computedSize.height + ActionBarHeight.toPx() + navbarHeight.toPx()
+                    (computedSize != null) -> computedSize.height + ActionBarHeight.toPx() + extraTopBarHeight.toPx() + navbarHeight.toPx()
                     else -> size.height
                 }
 
@@ -733,6 +734,10 @@ class UixManager(private val latinIME: LatinIME) {
         val view = LocalView.current
 
         val actionBarShown = useDataStore(ActionBarDisplayedSetting)
+        val emojiBarSetting = useDataStore(EmojiBarDisplayedSetting)
+        LaunchedEffect(emojiBarSetting.value) {
+            emojiBarSettingEnabled.value = emojiBarSetting.value
+        }
 
         Column {
             // Don't show suggested words when it's not meant to be shown
@@ -746,7 +751,19 @@ class UixManager(private val latinIME: LatinIME) {
                 if(!inlineStuffHiddenByTyping.value) inlineSuggestions.value else emptyList()
             }
 
-            if(actionBarShown.value || inlineSuggestions.isNotEmpty()) {
+            val showActionBar = actionBarShown.value || inlineSuggestions.isNotEmpty()
+            val showEmojiBar = emojiBarSetting.value && emojiBarAllowed.value
+
+            if (showEmojiBar && !needToUseExpandableSuggestionUi) {
+                EmojiBar(
+                    emojis = recentEmojis.value,
+                    onEmojiSelected = { selectEmoji(it, view) },
+                    onOpenEmojiPanel = { onActionActivated(EmojiAction) },
+                    drawBottomSeparator = !showActionBar
+                )
+            }
+
+            if(showActionBar) {
                 ActionBar(
                     suggestedWordsOrNull,
                     suggestionStripListener,
@@ -1068,7 +1085,11 @@ class UixManager(private val latinIME: LatinIME) {
             // Blocks any input to inputDarkener within the keyboard
             .pointerInput(Unit) {}
         ) {
-            KeyboardBackground(LocalKeyboardScheme.current, latinIME.size.value)
+            KeyboardBackground(
+                LocalKeyboardScheme.current,
+                latinIME.size.value,
+                extraTopBarHeight = if (isEmojiBarShown) EmojiBarHeight else 0.dp
+            )
 
             CompositionLocalProvider(LocalKeyboardPadding provides KeyboardPadding(
                     left = padding.left.toDp().coerceAtLeast(0.dp),
@@ -1197,7 +1218,8 @@ class UixManager(private val latinIME: LatinIME) {
             Column(modifier = Modifier
                 .matchParentSize()
                 .absolutePadding(
-                    top = if (isActionsExpanded.value) ActionBarHeight else 0.dp
+                    top = (if (isActionsExpanded.value) ActionBarHeight else 0.dp) +
+                            (if (isEmojiBarShown) EmojiBarHeight else 0.dp)
                 ), horizontalAlignment = when(size.direction) {
                 // Aligned opposite of the keyboard
                 OneHandedDirection.Left -> Alignment.End

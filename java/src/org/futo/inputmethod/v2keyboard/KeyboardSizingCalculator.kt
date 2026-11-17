@@ -25,6 +25,7 @@ import kotlinx.serialization.json.Json
 import org.futo.inputmethod.latin.FoldStateProvider
 import org.futo.inputmethod.latin.LatinIME
 import org.futo.inputmethod.latin.settings.SettingsValues
+import org.futo.inputmethod.latin.uix.EmojiBarHeightDp
 import org.futo.inputmethod.latin.uix.OldStyleActionsBar
 import org.futo.inputmethod.latin.uix.SettingsKey
 import org.futo.inputmethod.latin.uix.UixManager
@@ -588,11 +589,15 @@ class KeyboardSizingCalculator(val context: Context, val uixManager: UixManager)
         return 40.0f
     }
 
-    fun calculateTotalActionBarHeightPx(): Int =
-        when {
+    fun calculateTotalActionBarHeightPx(): Int {
+        val actionBarHeight = when {
             uixManager.actionsExpanded
                     && (uixManager.currWindowActionWindow.value == null)
                     && (context.getSetting(OldStyleActionsBar) == false) -> dp(2 * calculateSuggestionBarHeightDp())
             else -> dp(calculateSuggestionBarHeightDp())
         }
+
+        return actionBarHeight +
+                (if (uixManager.isEmojiBarShown) dp(EmojiBarHeightDp) else 0)
+    }
 }
