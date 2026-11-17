@@ -386,6 +386,11 @@
     <string name="setup_migration_continue">Continue</string>
     <string name="setup_migration_error_title">Import failed</string>
     <string name="setup_migration_error_body">The selected file could not be imported. Make sure it is a .backup file exported from the official FUTO Keyboard.</string>
+    <string name="settings_import_official_title">Import from FUTO Keyboard</string>
+    <string name="settings_import_official_subtitle">Coming from the official FUTO Keyboard? Import your settings, theme, personal dictionary, learned words and recent emojis.</string>
+    <string name="settings_import_official_howto">In the official FUTO Keyboard, open Settings, go to Miscellaneous and tap "Export configuration", then save the .backup file.</string>
+    <string name="settings_import_official_detected">Official FUTO Keyboard detected. You can uninstall it after importing your configuration.</string>
+    <string name="settings_import_official_button">Import .backup file</string>
     <string name="settings_import_export_tags">backup, restore, save, load, export, import, transfer device</string>
 
     <!-- Keyboard actions -->

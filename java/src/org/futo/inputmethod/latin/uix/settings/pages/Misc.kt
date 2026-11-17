@@ -25,6 +25,12 @@ val MiscMenu = UserSettingsMenu(
             navigateTo = "exportingcfg"
         ).copy(searchTags = R.string.settings_import_export_tags),
         userSettingNavigationItem(
+            title = (R.string.settings_import_official_title),
+            subtitle = (R.string.settings_import_official_subtitle),
+            style = NavigationItemStyle.Misc,
+            navigateTo = "migrationimport"
+        ).copy(searchTags = R.string.settings_import_export_tags),
+        userSettingNavigationItem(
             title = (R.string.settings_import_configuration),
             subtitle = (R.string.settings_import_configuration_subtitle),
             style = NavigationItemStyle.Misc,

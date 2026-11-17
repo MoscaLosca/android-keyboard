@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SettingsKey
@@ -139,6 +140,31 @@ fun SetupImportError(message: String?, onContinue: () -> Unit) {
             ) {
                 Text(stringResource(R.string.setup_migration_continue))
             }
+        }
+    }
+}
+
+@Composable
+fun MigrationMenuScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val officialInstalled = remember { context.isOfficialFutoInstalled() }
+
+    ScrollableList {
+        ScreenTitle(stringResource(R.string.settings_import_official_title))
+
+        if(officialInstalled) {
+            Tip(stringResource(R.string.settings_import_official_detected))
+        }
+
+        Tip(stringResource(R.string.settings_import_official_howto))
+
+        Button(
+            onClick = {
+                triggerImportSettingsMerge(context)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.settings_import_official_button))
         }
     }
 }

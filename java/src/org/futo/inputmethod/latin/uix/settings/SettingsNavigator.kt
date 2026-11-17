@@ -185,6 +185,7 @@ fun SettingsNavigator(
             composable("paid") { PaymentThankYouScreen { navController.navigateUp() } }
             composable("credits") { CreditsScreen(navController) }
             composable("exportingcfg") { ExportingMenu(navController) }
+            composable("migrationimport") { MigrationMenuScreen(navController) }
             composable("kasroz") { KASROZMenu() }
             dialog("update") {
                 UpdateDialog(navController = navController)
