@@ -3,7 +3,14 @@
 package org.futo.inputmethod.latin.uix.settings
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import org.futo.inputmethod.latin.uix.SettingsKey
+import org.futo.inputmethod.latin.uix.findActivity
 
 /** Package names of the official FUTO Keyboard releases (standalone, nightly, Play Store). */
 val OFFICIAL_FUTO_PACKAGES = listOf(
@@ -22,4 +29,41 @@ fun Context.isOfficialFutoInstalled(): Boolean {
             false
         }
     }
+}
+
+/** Set when the user dismissed the setup migration prompt ("Not now") — never show it again. */
+val MigrationPromptDismissed = SettingsKey(
+    booleanPreferencesKey("official_migration_prompt_dismissed"),
+    false
+)
+
+/** Set once a settings backup has been imported from the official FUTO Keyboard. */
+val MigrationCompleted = SettingsKey(
+    booleanPreferencesKey("official_migration_completed"),
+    false
+)
+
+/** Result code for the migration import flow (non-destructive). */
+const val IMPORT_SETTINGS_MERGE_REQUEST = 53218641
+
+/** Lets the user pick a `.backup` file exported from the official FUTO Keyboard; the picked
+ *  file is imported non-destructively by SettingsActivity.onActivityResult. */
+fun triggerImportSettingsMerge(context: Context) {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "application/octet-stream"
+    }
+
+    findActivity(context)!!.startActivityForResult(intent, IMPORT_SETTINGS_MERGE_REQUEST)
+}
+
+/** The setup migration step shows only while the official app is installed and the user
+ *  has neither imported a backup nor dismissed the prompt. */
+@Composable
+fun needsToShowMigrationPrompt(): Boolean {
+    val context = LocalContext.current
+    val officialInstalled = remember { context.isOfficialFutoInstalled() }
+    if(!officialInstalled) return false
+
+    return !useDataStoreValue(MigrationPromptDismissed) && !useDataStoreValue(MigrationCompleted)
 }
