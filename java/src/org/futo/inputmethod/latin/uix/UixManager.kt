@@ -126,13 +126,17 @@ import org.futo.inputmethod.latin.uix.actions.ActionRegistry
 import org.futo.inputmethod.latin.uix.actions.AllActions
 import org.futo.inputmethod.latin.uix.actions.BugViewerAction
 import org.futo.inputmethod.latin.uix.actions.BugViewerState
+import org.futo.inputmethod.latin.uix.actions.EmojiAction
 import org.futo.inputmethod.latin.uix.actions.KeyboardModeAction
 import org.futo.inputmethod.latin.uix.actions.PersistentEmojiState
+import org.futo.inputmethod.latin.uix.EmojiTracker.getRecentEmojis
+import org.futo.inputmethod.latin.uix.EmojiTracker.useEmoji
 import org.futo.inputmethod.latin.uix.actions.keyCode
 import org.futo.inputmethod.latin.uix.actions.keyCodeAlt
 import org.futo.inputmethod.latin.uix.resizing.KeyboardResizers
 import org.futo.inputmethod.latin.uix.settings.DataStoreCacheProvider
 import org.futo.inputmethod.latin.uix.settings.pages.ActionBarDisplayedSetting
+import org.futo.inputmethod.latin.uix.settings.pages.EmojiBarDisplayedSetting
 import org.futo.inputmethod.latin.uix.settings.pages.InlineAutofillSetting
 import org.futo.inputmethod.latin.uix.settings.useDataStore
 import org.futo.inputmethod.latin.uix.theme.KeyboardSurfaceShaderBackground
@@ -597,6 +601,35 @@ class UixManager(private val latinIME: LatinIME) {
         NonExpandableSuggestionBar
     )
 
+    private val recentEmojis: MutableState<List<String>> = mutableStateOf(emptyList())
+    private val emojiBarSettingEnabled = mutableStateOf(true)
+    private val emojiBarAllowed = mutableStateOf(false)
+
+    val isEmojiBarShown: Boolean
+        get() = emojiBarSettingEnabled.value && emojiBarAllowed.value &&
+                currWindowActionWindow.value == null && !mainKeyboardHidden.value
+
+    private fun loadRecentEmojis() {
+        latinIME.lifecycleScope.launch {
+            recentEmojis.value = latinIME.getRecentEmojis()
+        }
+    }
+
+    fun onInputViewShown(editorInfo: EditorInfo?) {
+        emojiBarAllowed.value = editorInfo?.supportsEmojiBar() == true
+        loadRecentEmojis()
+    }
+
+    private fun selectEmoji(emoji: String, view: View) {
+        if (emoji.all { it.code < 128 }) {
+            keyboardManagerForAction.typeTextSurroundedByWhitespace(emoji)
+        } else {
+            keyboardManagerForAction.typeText(emoji)
+        }
+        keyboardManagerForAction.performHapticAndAudioFeedback(Constants.CODE_EMOJI, view)
+        latinIME.lifecycleScope.launch { latinIME.useEmoji(emoji) }
+    }
+
     var currWindowAction: MutableState<Action?> = mutableStateOf(null)
     private var persistentStates: HashMap<Action, PersistentActionState?> = hashMapOf()
 
@@ -795,6 +828,7 @@ class UixManager(private val latinIME: LatinIME) {
         latinIME.window.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         keyboardManagerForAction.announce(latinIME.getString(R.string.action_menu_closed, name))
+        loadRecentEmojis()
         return true
     }
 
@@ -1551,6 +1585,7 @@ class UixManager(private val latinIME: LatinIME) {
         initKeyboardLoadActions()
 
         isActionsExpanded.value = latinIME.getSettingBlocking(ActionBarExpanded)
+        emojiBarSettingEnabled.value = latinIME.getSettingBlocking(EmojiBarDisplayedSetting)
 
         latinIME.lifecycleScope.launch(Dispatchers.Main) {
             WindowInfoTracker.getOrCreate(latinIME).windowLayoutInfo(latinIME).collect {
@@ -1564,6 +1599,7 @@ class UixManager(private val latinIME: LatinIME) {
 
     fun onPersistentStatesUnlocked() {
         initKeyboardLoadActions()
+        loadRecentEmojis()
 
         persistentStates.forEach {
             latinIME.lifecycleScope.launch {
@@ -1622,6 +1658,8 @@ class UixManager(private val latinIME: LatinIME) {
         }
         inlineStuffHiddenByTyping.value = false
         this.editorInfo = editorInfo
+        emojiBarAllowed.value = editorInfo?.supportsEmojiBar() == true
+        loadRecentEmojis()
 
         currTutorialMode.value = tutorialMode
         tutorialCompleted.value = false
